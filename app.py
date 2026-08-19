@@ -74,7 +74,7 @@ job_colors = {
     "swordman": "#842029",      
     "wizard": "#084298",        
     "hunter": "#664d03",        
-    "blacksmith": "#7b341e",   
+    "blacksmith": "#FFA500",   
     "thief": "#432874",          
     "gunner": "#53382c",        
     "druid": "#40E0D0",          
