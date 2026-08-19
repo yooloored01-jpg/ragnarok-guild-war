@@ -182,9 +182,11 @@ body {{
     color: #ffffff;
     font-family: 'Roboto', Arial, sans-serif;
     background: 
-        linear-gradient(rgba(10, 15, 30, 0.5), rgba(15, 23, 42, 0.6)),
-        #0f172a;
-    background-size: cover;
+       linear-gradient(rgba(10, 15, 30, 0.85), rgba(15, 23, 42, 0.85)),
+       url('bg-ro.jpg');
+   background-size: cover;
+   background-position: center;
+   background-attachment: fixed;
     overflow-x: auto;
 }}
 
