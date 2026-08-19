@@ -188,7 +188,7 @@ body {{
     padding: 10px 20px;
     color: #ffffff;
     font-family: 'Roboto', Arial, sans-serif;
-    background-color: #0f172a;
+    background-color: #ffffff;
     background-image: linear-gradient(rgba(15, 23, 42, 0.90), rgba(15, 23, 42, 0.93)), url('{ro_b64}');
     background-size: cover;
     background-position: center;
