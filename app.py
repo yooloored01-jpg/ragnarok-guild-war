@@ -82,7 +82,7 @@ job_colors = {
 }
 
 job_text_colors = {
-    "priest": "#d1e7dd",
+    "priest": "#212121",
     "swordman": "#f8d7da",
     "wizard": "#cfe2ff",
     "druid": "#212121",
