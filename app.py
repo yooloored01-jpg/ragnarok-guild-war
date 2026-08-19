@@ -432,7 +432,7 @@ body {{
     border-radius: 6px;
     background: var(--job-bg);
     color: var(--job-fg);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     text-align: center;
     word-break: break-word;
@@ -498,7 +498,7 @@ body.screenshot-mode {{
         </div>
         <div class="subheader">Official Deployment & Strategy Dashboard Guild Lumiere</div>
         <div class="date-container">
-            <div class="date-badge">📅 Jadwal War: {tanggal_war}</div>
+            <div class="date-badge">📅 Tanggal : {tanggal_war}</div>
         </div>
     </div>
 
