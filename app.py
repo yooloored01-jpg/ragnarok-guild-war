@@ -477,9 +477,9 @@ body.screenshot-mode {{
     <div class="banner-header">
         <div class="title-wrapper">
             <!-- Gambar Poring Menggunakan Aset Publik agar Langsung Muncul -->
-            <img src="https://i.imgur.com/83ZgH47.png" class="poring-img" alt="Poring">
+            <img src="poring.png" class="poring-img" alt="Poring">
             <div class="header">RAGNAROK GUILD LEAGUE WAR</div>
-            <img src="https://i.imgur.com/83ZgH47.png" class="poring-img" alt="Poring">
+            <img src="poring.png" class="poring-img" alt="Poring">
         </div>
         <div class="subheader">Official Deployment & Strategy Dashboard Guild Lumiere</div>
         <div class="date-container">
