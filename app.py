@@ -1,22 +1,32 @@
 import os
 import pandas as pd
+import streamlit as st
 
 # ==========================================
-# KONFIGURASI TANGGAL & FILE
+# KONFIGURASI TANGGAL & GOOGLE SHEETS
 # ==========================================
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-excel_path = os.path.join(BASE_DIR, 'Book1.xlsx')
 tanggal_war = "Jumat, 18 Agustus 2026"
 
-# 1. Baca data dari Excel
-xls = pd.ExcelFile(excel_path)
-df_main = pd.read_excel(excel_path, sheet_name='Main')
-df_sub = pd.read_excel(excel_path, sheet_name='Sub')
-df_job = pd.read_excel(excel_path, sheet_name='Data')
+# ID Google Sheets Anda (Pastikan file sudah di-set "Anyone with the link can view")
+sheet_id = "1a__PWfdLc5XLcstIiexAtboh1iiKdCqtTxVzQ_8Jf6E"
 
+# URL untuk membaca sheet langsung sebagai CSV via web
+url_main = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet=Main"
+url_sub = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet=Sub"
+url_job = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet=Data"
+
+# 1. Baca data langsung dari Google Sheets
+@st.cache_data
+def load_data():
+    df_main = pd.read_csv(url_main)
+    df_sub = pd.read_csv(url_sub)
+    df_job = pd.read_csv(url_job)
+    return df_main, df_sub, df_job
+
+df_main, df_sub, df_job = load_data()
 sub_cols = list(df_sub.columns)
 
-# 2. Mapping Job dari Sheet 3
+# 2. Mapping Job dari Sheet Data
 job_map = {}
 for _, row in df_job.iterrows():
     p_name = row.iloc[0]
@@ -50,6 +60,7 @@ job_text_colors = {
 }
 
 # 3. Buat File Eksternal script.js agar tidak ada error f-string
+BASE_DIR = os.path.dirname(os.path.abspath(__file__)) if '__file__' in locals() else "."
 js_content = """
 function toggleScreenshotMode() {
     document.body.classList.toggle('screenshot-mode');
@@ -95,7 +106,6 @@ function searchPlayer() {
     var players = document.querySelectorAll('.player');
     var found = false;
 
-    // Bersihkan highlight sebelumnya
     players.forEach(function(p) { p.style.boxShadow = 'none'; });
 
     for (var i = 0; i < players.length; i++) {
@@ -111,14 +121,12 @@ function searchPlayer() {
             var teamName = teamBox.getAttribute('data-team');
             var realName = p.innerText;
 
-            // Pindah tab otomatis
             if (fieldName === 'Main Field') {
                 document.querySelector('.tab-btn:nth-child(1)').click();
             } else {
                 document.querySelector('.tab-btn:nth-child(2)').click();
             }
 
-            // Beri jeda agar DOM tab sempat render sebelum digulirkan
             setTimeout(function() {
                 if (flexContainer) {
                     flexContainer.scrollTo({
@@ -677,4 +685,4 @@ html += f"""
 with open(os.path.join(BASE_DIR, "guild_war_pro_final.html"), "w", encoding="utf-8") as f:
     f.write(html)
 
-print("Berhasil! File script.js dan guild_war_pro_final.html berhasil dibuat.")
+print("Berhasil! File script.js dan guild_war_pro_final.html berhasil dibuat dari Google Sheets.")
