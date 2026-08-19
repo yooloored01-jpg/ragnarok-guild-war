@@ -1,24 +1,23 @@
 import pandas as pd
 import streamlit as st
 
-# Gunakan link CSV utama dari document yang sama
-# Pastikan link ini didapat dari menu 'Publish to web'
-BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ.../pub?output=csv"
-
-@st.cache_data # Biar loading cepat tidak berkali-kali ambil data
+@st.cache_data
 def load_data():
-    # Karena link 'Publish to web' untuk seluruh doc seringkali menggabungkan sheet
-    # atau menggunakan gid (ID sheet), sebaiknya gunakan link per sheet jika tersedia.
-    # Jika Anda ingin membaca sheet spesifik, gunakan format:
+    # ID Spreadsheet Anda: 1a__PWfdLc5XLcstIiexAtboh1iiKdCqtTxVzQ_8Jf6E
+    # Menggunakan gviz/tq agar bisa memanggil nama sheet secara langsung tanpa ribet gid
+    sheet_id = "1a__PWfdLc5XLcstIiexAtboh1iiKdCqtTxVzQ_8Jf6E"
     
-    # Ganti ID_SHEET dengan gid dari URL sheet masing-masing
-    df_main = pd.read_csv("https://docs.google.com/spreadsheets/d/1a__PWfdLc5XLcstIiexAtboh1iiKdCqtTxVzQ_8Jf6E/export?format=csv&gid=0")
-    df_sub = pd.read_csv("https://docs.google.com/spreadsheets/d/1a__PWfdLc5XLcstIiexAtboh1iiKdCqtTxVzQ_8Jf6E/export?format=csv&gid=123456789") # Ganti gid-nya
-    df_data = pd.read_csv("https://docs.google.com/spreadsheets/d/1a__PWfdLc5XLcstIiexAtboh1iiKdCqtTxVzQ_8Jf6E/export?format=csv&gid=987654321") # Ganti gid-nya
+    url_main = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet=Main"
+    url_sub = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet=Sub"
+    url_job = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet=Data"
     
-    return df_main, df_sub, df_data
+    df_main = pd.read_csv(url_main)
+    df_sub = pd.read_csv(url_sub)
+    df_job = pd.read_csv(url_job)
+    
+    return df_main, df_sub, df_job
 
-# Eksekusi
+# Eksekusi pemanggilan data
 df_main, df_sub, df_job = load_data()
 sub_cols = list(df_sub.columns)
 tanggal_war = "Jumat, 18 Agustus 2026"
