@@ -1,31 +1,23 @@
 import os
 import pandas as pd
 import streamlit as st
-import gspread
-from google.oauth2.service_account import Credentials
 
 # ==========================================
-# KONFIGURASI GOOGLE SHEETS VIA STREAMLIT SECRETS
+# KONFIGURASI GOOGLE SHEETS VIA LINK CSV
 # ==========================================
-scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+# Caranya di Google Sheets Anda: 
+# 1. Klik File > Share > Publish to web
+# 2. Pilih sheet yang ingin di-publish (atau seluruh dokumen) dan ubah formatnya menjadi "Comma-Separated Values (.csv)"
+# 3. Salin link CSV untuk masing-masing sheet dan masukkan ke bawah ini:
 
-# Membaca credentials dengan aman dari Streamlit Secrets
-creds_dict = dict(st.secrets["gcp_service_account"])
-creds = Credentials.from_service_account_info(creds_dict, scopes=scope)
-client = gspread.authorize(creds)
+URL_MAIN = "https://docs.google.com/spreadsheets/d/1a__PWfdLc5XLcstIiexAtboh1iiKdCqtTxVzQ_8Jf6E/edit?usp=sharing"
+URL_SUB = "https://docs.google.com/spreadsheets/d/1a__PWfdLc5XLcstIiexAtboh1iiKdCqtTxVzQ_8Jf6E/edit?usp=sharing"
+URL_JOB = "https://docs.google.com/spreadsheets/d/1a__PWfdLc5XLcstIiexAtboh1iiKdCqtTxVzQ_8Jf6E/edit?usp=sharing"
 
-# Buka spreadsheet berdasarkan nama file Google Sheets Anda
-spreadsheet = client.open("Nama_File_Spreadsheet_Anda") 
-
-def get_df_from_sheet(sheet_name):
-    worksheet = spreadsheet.worksheet(sheet_name)
-    data = worksheet.get_all_records()
-    return pd.DataFrame(data)
-
-# Load Data dari Google Sheets
-df_main = get_df_from_sheet('Main')
-df_sub = get_df_from_sheet('Sub')
-df_job = get_df_from_sheet('Data')
+# Membaca data langsung via pandas (sangat stabil di cloud)
+df_main = pd.read_csv(URL_MAIN)
+df_sub = pd.read_csv(URL_SUB)
+df_job = pd.read_csv(URL_JOB)
 
 sub_cols = list(df_sub.columns)
 tanggal_war = "Jumat, 18 Agustus 2026"
