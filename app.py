@@ -1,17 +1,20 @@
 import os
 import pandas as pd
-import gspread # Pastikan library gspread sudah terinstall
-from oauth2client.service_account import ServiceAccountCredentials
+import streamlit as st
+import gspread
+from google.oauth2.service_account import Credentials
 
 # ==========================================
-# KONFIGURASI SPREADSHEET
+# KONFIGURASI GOOGLE SHEETS VIA STREAMLIT SECRETS
 # ==========================================
-# Pastikan file credential JSON sudah ada di folder / secrets
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-creds = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+
+# Membaca credentials dengan aman dari Streamlit Secrets
+creds_dict = dict(st.secrets["gcp_service_account"])
+creds = Credentials.from_service_account_info(creds_dict, scopes=scope)
 client = gspread.authorize(creds)
 
-# Buka spreadsheet berdasarkan nama atau ID
+# Buka spreadsheet berdasarkan nama file Google Sheets Anda
 spreadsheet = client.open("Nama_File_Spreadsheet_Anda") 
 
 def get_df_from_sheet(sheet_name):
@@ -19,14 +22,13 @@ def get_df_from_sheet(sheet_name):
     data = worksheet.get_all_records()
     return pd.DataFrame(data)
 
-# Mengganti pembacaan lokal menjadi dari Spread
+# Load Data dari Google Sheets
 df_main = get_df_from_sheet('Main')
 df_sub = get_df_from_sheet('Sub')
 df_job = get_df_from_sheet('Data')
 
 sub_cols = list(df_sub.columns)
 tanggal_war = "Jumat, 18 Agustus 2026"
-# ==========================================
 
 # 2. Mapping Job dari Sheet 3
 job_map = {}
