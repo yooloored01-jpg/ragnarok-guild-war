@@ -35,9 +35,9 @@ def get_image_base64(path):
     return ""
 
 poring_b64 = get_image_base64("poring.png")
-ro_b64 = get_image_base64("ro.jpg")
-if not ro_b64 and os.path.exists("ro.jpg"):
-    ro_b64 = get_image_base64("ro.jpg")
+ro_b64 = get_image_base64("ragnarok.png")
+if not ro_b64 and os.path.exists("ragnarok.png"):
+    ro_b64 = get_image_base64("ragnarok.png")
 
 # ==========================================
 # KONFIGURASI GOOGLE SHEETS
