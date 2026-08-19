@@ -1,24 +1,25 @@
-import os
 import pandas as pd
 import streamlit as st
 
-# ==========================================
-# KONFIGURASI GOOGLE SHEETS VIA LINK CSV
-# ==========================================
-# Caranya di Google Sheets Anda: 
-# 1. Klik File > Share > Publish to web
-# 2. Pilih sheet yang ingin di-publish (atau seluruh dokumen) dan ubah formatnya menjadi "Comma-Separated Values (.csv)"
-# 3. Salin link CSV untuk masing-masing sheet dan masukkan ke bawah ini:
+# Gunakan link CSV utama dari document yang sama
+# Pastikan link ini didapat dari menu 'Publish to web'
+BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ.../pub?output=csv"
 
-URL_MAIN = "https://docs.google.com/spreadsheets/d/1a__PWfdLc5XLcstIiexAtboh1iiKdCqtTxVzQ_8Jf6E/edit?usp=sharing"
-URL_SUB = "https://docs.google.com/spreadsheets/d/1a__PWfdLc5XLcstIiexAtboh1iiKdCqtTxVzQ_8Jf6E/edit?usp=sharing"
-URL_JOB = "https://docs.google.com/spreadsheets/d/1a__PWfdLc5XLcstIiexAtboh1iiKdCqtTxVzQ_8Jf6E/edit?usp=sharing"
+@st.cache_data # Biar loading cepat tidak berkali-kali ambil data
+def load_data():
+    # Karena link 'Publish to web' untuk seluruh doc seringkali menggabungkan sheet
+    # atau menggunakan gid (ID sheet), sebaiknya gunakan link per sheet jika tersedia.
+    # Jika Anda ingin membaca sheet spesifik, gunakan format:
+    
+    # Ganti ID_SHEET dengan gid dari URL sheet masing-masing
+    df_main = pd.read_csv("https://docs.google.com/spreadsheets/d/1a__PWfdLc5XLcstIiexAtboh1iiKdCqtTxVzQ_8Jf6E/export?format=csv&gid=0")
+    df_sub = pd.read_csv("https://docs.google.com/spreadsheets/d/1a__PWfdLc5XLcstIiexAtboh1iiKdCqtTxVzQ_8Jf6E/export?format=csv&gid=123456789") # Ganti gid-nya
+    df_data = pd.read_csv("https://docs.google.com/spreadsheets/d/1a__PWfdLc5XLcstIiexAtboh1iiKdCqtTxVzQ_8Jf6E/export?format=csv&gid=987654321") # Ganti gid-nya
+    
+    return df_main, df_sub, df_data
 
-# Membaca data langsung via pandas (sangat stabil di cloud)
-df_main = pd.read_csv(URL_MAIN)
-df_sub = pd.read_csv(URL_SUB)
-df_job = pd.read_csv(URL_JOB)
-
+# Eksekusi
+df_main, df_sub, df_job = load_data()
 sub_cols = list(df_sub.columns)
 tanggal_war = "Jumat, 18 Agustus 2026"
 
