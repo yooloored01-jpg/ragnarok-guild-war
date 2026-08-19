@@ -53,10 +53,14 @@ def load_data():
     df_main = pd.read_csv(url_main)
     df_sub = pd.read_csv(url_sub)
     df_job = pd.read_csv(url_job)
+    
+    # Hapus otomatis kolom yang bernama "Unnamed"
+    df_sub = df_sub.loc[:, ~df_sub.columns.str.contains('^Unnamed')]
+    
     return df_main, df_sub, df_job
 
 df_main, df_sub, df_job = load_data()
-sub_cols = list(df_sub.columns)
+sub_cols = list(df_sub.columns) # Sekarang sub_cols sudah bersih dari Unnamed!
 
 job_map = {}
 for _, row in df_job.iterrows():
