@@ -9,13 +9,10 @@ st.set_page_config(layout="wide", page_title="Ragnarok Guild War - Battle Strate
 # ==========================================
 # KONFIGURASI GOOGLE SHEETS
 # ==========================================
-# Masukkan link Google Sheets Anda yang sudah dipublish ke web dalam bentuk CSV
-# Contoh format link CSV dari Google Sheets per sheet:
-# https://docs.google.com/spreadsheets/d/ID_SPREADSHEET_ANDA/gviz/tq?tqx=out:csv&sheet=NAMA_SHEET
 tanggal_war = "Jumat, 18 Agustus 2026"
 
-# Ganti URL di bawah dengan link publis / CSV Google Sheets Anda
-SHEET_ID = "MASUKKAN_SPREADSHEET_ID_ANDA_DISINI"
+# Menggunakan ID Spreadsheet dari link Anda
+SHEET_ID = "1a__PWfdLc5XLcstIiexAtboh1iiKdCqtTxVzQ_8Jf6E"
 url_main = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Main"
 url_sub = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Sub"
 url_job = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Data"
@@ -24,9 +21,9 @@ try:
     df_main = pd.read_csv(url_main)
     df_sub = pd.read_csv(url_sub)
     df_job = pd.read_csv(url_job)
-except Exception:
+except Exception as e:
     st.error(
-        "Gagal memuat data dari Google Sheets. Pastikan Google Sheets sudah diset ke 'Anyone with the link can view' dan format URL Sheet ID sudah benar."
+        f"Gagal memuat data dari Google Sheets. Pastikan sheet bernama 'Main', 'Sub', dan 'Data' tersedia. Detail error: {e}"
     )
     st.stop()
 
