@@ -498,7 +498,7 @@ body.screenshot-mode {{
         </div>
         <div class="subheader">Official Deployment & Strategy Dashboard Guild Lumiere</div>
         <div class="date-container">
-            <div class="date-badge">📅 Jadwal War: {tanggal_war}</div>
+            <div class="date-badge">📅 Tanggal : {tanggal_war}</div>
         </div>
     </div>
 
