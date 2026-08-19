@@ -432,7 +432,7 @@ body {{
     border-radius: 6px;
     background: var(--job-bg);
     color: var(--job-fg);
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     text-align: center;
     word-break: break-word;
