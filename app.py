@@ -160,7 +160,7 @@ function searchPlayer() {
 }
 """
 
-# 4. Rakit Tampilan HTML dengan Lebar Penuh (100%)
+# 4. Rakit Tampilan HTML dengan Gambar Poring & Logo
 html = f"""
 <!DOCTYPE html>
 <html>
@@ -197,7 +197,12 @@ body {{
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 18px;
+    gap: 15px;
+}}
+.poring-img {{
+    width: 55px;
+    height: auto;
+    filter: drop-shadow(0 0 8px rgba(250, 204, 21, 0.5));
 }}
 
 .header {{
@@ -471,7 +476,10 @@ body.screenshot-mode {{
 <div class="container">
     <div class="banner-header">
         <div class="title-wrapper">
+            <!-- Gambar Poring Menggunakan Aset Publik agar Langsung Muncul -->
+            <img src="https://i.imgur.com/83ZgH47.png" class="poring-img" alt="Poring">
             <div class="header">RAGNAROK GUILD LEAGUE WAR</div>
+            <img src="https://i.imgur.com/83ZgH47.png" class="poring-img" alt="Poring">
         </div>
         <div class="subheader">Official Deployment & Strategy Dashboard Guild Lumiere</div>
         <div class="date-container">
@@ -669,6 +677,6 @@ html += f"""
 """
 
 # ==========================================
-# RENDER KE STREAMLIT (TINGGI DIBESARKAN & LEBAR FULL)
+# RENDER KE STREAMLIT
 # ==========================================
 components.html(html, height=2200, scrolling=True)
