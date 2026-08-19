@@ -66,15 +66,15 @@ for _, row in df_job.iterrows():
         job_map[str(p_name).strip().lower()] = str(j_name).strip().lower()
 
 job_colors = {
-    "priest": "#0f5132",       
+    "priest": "#0f5132",        
     "swordman": "#842029",      
-    "wizard": "#084298",       
-    "hunter": "#664d03",       
+    "wizard": "#084298",        
+    "hunter": "#664d03",        
     "blacksmith": "#7b341e",   
     "thief": "#432874",         
-    "gunner": "#53382c",       
+    "gunner": "#53382c",        
     "druid": "#40E0D0",         
-    "default": "#1e293b"       
+    "default": "#1e293b"        
 }
 
 job_text_colors = {
@@ -348,21 +348,6 @@ body {{
 .tab-content {{ display: none; }}
 .tab-content.active {{ display: block; }}
 
-.content-wrapper {{
-    display: flex;
-    gap: 22px;
-    align-items: flex-start;
-    width: 100%;
-}}
-.main-content-area {{ flex: 1; min-width: 0; }}
-.sidebar-area {{
-    width: 370px;
-    flex-shrink: 0;
-    position: sticky;
-    top: 20px;
-    margin-top: 55px;
-}}
-
 .section-title {{
     display: flex;
     align-items: center;
@@ -472,18 +457,13 @@ body {{
 body.screenshot-mode {{
     padding: 10px !important;
 }}
-.screenshot-mode .tab-menu, 
+.screenshot-mode .tab-menu,  
 .screenshot-mode .controls,
 .screenshot-mode .search-container {{ 
     display: none !important; 
 }}
 .screenshot-mode .tab-content {{ 
     display: block !important; 
-}}
-
-@media (max-width: 1200px) {{
-    .content-wrapper {{ flex-direction: column; }}
-    .sidebar-area {{ width: 100%; position: static; margin-top: 0 !important; }}
 }}
 </style>
 </head>
@@ -525,11 +505,9 @@ body.screenshot-mode {{
 
     <!-- TAB 1: MAIN FIELD -->
     <div id="main-tab" class="tab-content active">
-        <div class="content-wrapper">
-            <div class="main-content-area">
-                
-                <div class="section-title">⚔️ PARTY RAID MAIN (TEAM 1 - 8)</div>
-                <div class="teams-flex-container">
+        
+        <div class="section-title">⚔️ PARTY RAID MAIN (TEAM 1 - 8)</div>
+        <div class="teams-flex-container">
 """
 
 main_cols = list(df_main.columns)
@@ -549,10 +527,10 @@ for i, col in enumerate(main_cols[:8]):
         html += '</div>'
 
 html += f"""
-                </div>
+        </div>
 
-                <div class="section-title">🛡️ CHAOS PARTY MAIN</div>
-                <div class="teams-flex-container">
+        <div class="section-title">🛡️ CHAOS PARTY MAIN</div>
+        <div class="teams-flex-container">
 """
 
 for col in main_cols[8:]:
@@ -571,23 +549,22 @@ for col in main_cols[8:]:
         html += '</div>'
 
 html += f"""
-                </div>
-            </div>
+        </div>
 
-            <div class="sidebar-area">
-                <div class="msg-box">
-                    <h4>⚠️ CATATAN & INSTRUKSI MAIN FIELD</h4>
-                    <p>
-                        <b>📊 Info Umum (Total 60 Player):</b><br>
-                        • Terbagi menjadi <b>2 Party Raid</b> dan <b>4 Normal Party</b>.<br>
-                        • <b>Tolong prepare di 20.45 untuk join party raid / join party masing".<br><br>                        
-                        <b>🎯 Pembagian Tugas:</b><br>
-                        • <b>Team 1 - 4:</b> Lane Mid (stay push/defense di lane mid).<br>
-                        • <b>Team 5 - 6:</b> Lane Top (push/defense lane top / atas).<br>
-                        • <b>Team 7 - 8:</b> Lane Bottom (push/defense lane bottom / bawah).<br>
-                        • <b>Team Chaos 1 - 4:</b> Tim Rusuh / Backup lane yang ke push dari 3 lane bantu cover, kalau bisa dorong musuh lewat belakang.
-                    </p>
-                </div>
+        <!-- SIDEBAR MAIN FIELD DI BAWAH -->
+        <div style="margin-top: 30px; max-width: 100%;">
+            <div class="msg-box">
+                <h4>⚠️ CATATAN & INSTRUKSI MAIN FIELD</h4>
+                <p>
+                    <b>📊 Info Umum (Total 60 Player):</b><br>
+                    • Terbagi menjadi <b>2 Party Raid</b> dan <b>4 Normal Party</b>.<br>
+                    • <b>Tolong prepare di 20.45 untuk join party raid / join party masing".<br><br>                    
+                    <b>🎯 Pembagian Tugas:</b><br>
+                    • <b>Team 1 - 4:</b> Lane Mid (stay push/defense di lane mid).<br>
+                    • <b>Team 5 - 6:</b> Lane Top (push/defense lane top / atas).<br>
+                    • <b>Team 7 - 8:</b> Lane Bottom (push/defense lane bottom / bawah).<br>
+                    • <b>Team Chaos 1 - 4:</b> Tim Rusuh / Backup lane yang ke push dari 3 lane bantu cover, kalau bisa dorong musuh lewat belakang.
+                </p>
             </div>
         </div>
     </div>
