@@ -70,7 +70,7 @@ for _, row in df_job.iterrows():
         job_map[str(p_name).strip().lower()] = str(j_name).strip().lower()
 
 job_colors = {
-    "priest": "#0f5132",        
+    "priest": "#BFE3B4",        
     "swordman": "#842029",      
     "wizard": "#084298",        
     "hunter": "#FFFA66",        
@@ -86,7 +86,7 @@ job_text_colors = {
     "swordman": "#f8d7da",
     "wizard": "#cfe2ff",
     "druid": "#212121",
-    "hunter": "#fff3cd",
+    "hunter": "#212121",
     "blacksmith": "#f8d7da",
     "thief": "#e2d9f3",
     "gunner": "#f8d7da",
