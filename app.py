@@ -183,19 +183,18 @@ html = f"""
 
 * {{ box-sizing: border-box; }}
 
-body {
+body {{
     margin: 0;
     padding: 10px 20px;
     color: #ffffff;
     font-family: 'Roboto', Arial, sans-serif;
     background-color: #4FE8CC;
-    /* Ganti warna di dalam linear-gradient agar tidak hitam pekat */
-    background-image: linear-gradient(rgba(13, 148, 136, 0.85), rgba(15, 23, 42, 0.90)), url('{ro_b64}');
+    background-image: linear-gradient(rgba(13, 148, 136, 0.85), rgba(15, 118, 110, 0.90)), url('{ro_b64}');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
     width: 100%;
-}
+}}
 
 .container {{
     width: 100%;
@@ -499,7 +498,7 @@ body.screenshot-mode {{
         </div>
         <div class="subheader">Official Deployment & Strategy Dashboard Guild Lumiere</div>
         <div class="date-container">
-            <div class="date-badge">📅 Tanggal : {tanggal_war}</div>
+            <div class="date-badge">📅 Jadwal War: {tanggal_war}</div>
         </div>
     </div>
 
