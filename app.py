@@ -1,13 +1,14 @@
 import os
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 # ==========================================
 # KONFIGURASI TANGGAL & GOOGLE SHEETS
 # ==========================================
 tanggal_war = "Jumat, 18 Agustus 2026"
 
-# ID Google Sheets Anda (Pastikan file sudah di-set "Anyone with the link can view")
+# ID Google Sheets Anda
 sheet_id = "1a__PWfdLc5XLcstIiexAtboh1iiKdCqtTxVzQ_8Jf6E"
 
 # URL untuk membaca sheet langsung sebagai CSV via web
@@ -177,12 +178,7 @@ body {{
     padding: 25px;
     color: #ffffff;
     font-family: 'Roboto', Arial, sans-serif;
-    background: 
-        linear-gradient(rgba(10, 15, 30, 0.5), rgba(15, 23, 42, 0.6)),
-        url('ro.jpg') no-repeat center center fixed;
-    background-size: cover;
-    background-attachment: fixed;
-    overflow-x: auto;
+    background: #0f172a;
 }}
 
 .container {{
@@ -483,9 +479,7 @@ body.screenshot-mode {{
 <div class="container">
     <div class="banner-header">
         <div class="title-wrapper">
-            <img src="poring.png" alt="Poring" class="poring-img">
             <div class="header">RAGNAROK GUILD LEAGUE WAR</div>
-            <img src="poring.png" alt="Poring" class="poring-img" style="transform: scaleX(-1);">
         </div>
         <div class="subheader">Official Deployment & Strategy Dashboard Guild Lumiere</div>
         <div class="date-container">
@@ -674,15 +668,16 @@ html += f"""
     </div>
 </div>
 
-<!-- SCRIPT DIPISAH KE FILE EXTERNAL AGAR AMAN DARI ERROR -->
-<script src="script.js"></script>
+<!-- SCRIPT JAVASCRIPT EXTERNAL -->
+<script>
+{js_content}
+</script>
 
 </body>
 </html>
 """
 
-# Simpan file HTML
-with open(os.path.join(BASE_DIR, "guild_war_pro_final.html"), "w", encoding="utf-8") as f:
-    f.write(html)
-
-print("Berhasil! File script.js dan guild_war_pro_final.html berhasil dibuat dari Google Sheets.")
+# ==========================================
+# RENDER KE STREAMLIT (INI YANG KURANG SEBELUMNYA)
+# ==========================================
+components.html(html, height=1200, scrolling=True)
