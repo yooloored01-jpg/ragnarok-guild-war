@@ -3,11 +3,18 @@ import os
 import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
+from datetime import datetime
 
 # ==========================================
-# 0. SETTING STREAMLIT AGAR FULL LEBAR (WIDE)
+# 0. SETTING STREAMLIT & TANGGAL OTOMATIS
 # ==========================================
 st.set_page_config(page_title="Ragnarok Guild War Strategy", layout="wide")
+
+# Mengambil tanggal otomatis hari ini
+now = datetime.now()
+days = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"]
+months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
+tanggal_war = f"{days[now.weekday()]}, {now.day} {months[now.month - 1]} {now.year}"
 
 # ==========================================
 # FUNGSI HELPER: KONVERSI GAMBAR LOKAL KE BASE64
@@ -27,20 +34,14 @@ def get_image_base64(path):
         return f"data:{mime};base64,{encoded}"
     return ""
 
-# Ambil string base64 untuk gambar lokal
 poring_b64 = get_image_base64("poring.png")
 ro_b64 = get_image_base64("ro.png")
-
-# Jika ro.png kosong, fallback ke ro.jpg
 if not ro_b64 and os.path.exists("ro.jpg"):
     ro_b64 = get_image_base64("ro.jpg")
 
 # ==========================================
-# KONFIGURASI TANGGAL & GOOGLE SHEETS
+# KONFIGURASI GOOGLE SHEETS
 # ==========================================
-tanggal_war = "Jumat, 18 Agustus 2026"
-
-# ID Google Sheets Anda
 sheet_id = "1a__PWfdLc5XLcstIiexAtboh1iiKdCqtTxVzQ_8Jf6E"
 
 url_main = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet=Main"
