@@ -1,20 +1,32 @@
 import os
 import pandas as pd
+import gspread # Pastikan library gspread sudah terinstall
+from oauth2client.service_account import ServiceAccountCredentials
 
 # ==========================================
-# KONFIGURASI TANGGAL & FILE
+# KONFIGURASI SPREADSHEET
 # ==========================================
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-excel_path = os.path.join(BASE_DIR, 'Book1.xlsx')
-tanggal_war = "Jumat, 18 Agustus 2026"
+# Pastikan file credential JSON sudah ada di folder / secrets
+scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+creds = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+client = gspread.authorize(creds)
 
-# 1. Baca data dari Excel
-xls = pd.ExcelFile(excel_path)
-df_main = pd.read_excel(excel_path, sheet_name='Main')
-df_sub = pd.read_excel(excel_path, sheet_name='Sub')
-df_job = pd.read_excel(excel_path, sheet_name='Data')
+# Buka spreadsheet berdasarkan nama atau ID
+spreadsheet = client.open("Nama_File_Spreadsheet_Anda") 
+
+def get_df_from_sheet(sheet_name):
+    worksheet = spreadsheet.worksheet(sheet_name)
+    data = worksheet.get_all_records()
+    return pd.DataFrame(data)
+
+# Mengganti pembacaan lokal menjadi dari Spread
+df_main = get_df_from_sheet('Main')
+df_sub = get_df_from_sheet('Sub')
+df_job = get_df_from_sheet('Data')
 
 sub_cols = list(df_sub.columns)
+tanggal_war = "Jumat, 18 Agustus 2026"
+# ==========================================
 
 # 2. Mapping Job dari Sheet 3
 job_map = {}
