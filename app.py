@@ -4,6 +4,11 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 # ==========================================
+# 0. SETTING STREAMLIT AGAR FULL LEBAR (WIDE)
+# ==========================================
+st.set_page_config(page_title="Ragnarok Guild War Strategy", layout="wide")
+
+# ==========================================
 # KONFIGURASI TANGGAL & GOOGLE SHEETS
 # ==========================================
 tanggal_war = "Jumat, 18 Agustus 2026"
@@ -60,7 +65,7 @@ job_text_colors = {
     "default": "#f1f5f9"
 }
 
-# 3. Buat File Eksternal script.js agar tidak ada error f-string
+# 3. JavaScript Eksternal untuk Tab & Search
 BASE_DIR = os.path.dirname(os.path.abspath(__file__)) if '__file__' in locals() else "."
 js_content = """
 function toggleScreenshotMode() {
@@ -155,11 +160,7 @@ function searchPlayer() {
 }
 """
 
-with open(os.path.join(BASE_DIR, "script.js"), "w", encoding="utf-8") as f_js:
-    f_js.write(js_content)
-
-
-# 4. Rakit Tampilan HTML
+# 4. Rakit Tampilan HTML dengan Lebar Penuh (100%)
 html = f"""
 <!DOCTYPE html>
 <html>
@@ -174,22 +175,19 @@ html = f"""
 
 body {{
     margin: 0;
-    min-height: 100vh;
-    padding: 25px;
+    padding: 10px 20px;
     color: #ffffff;
     font-family: 'Roboto', Arial, sans-serif;
     background: #0f172a;
+    width: 100%;
 }}
 
 .container {{
-    position: relative;
-    max-width: 1750px;
-    margin: auto;
-    padding: 35px;
-    border: none;
-    border-radius: 20px;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 10px;
     background: transparent;
-    box-shadow: none;
 }}
 
 .banner-header, .tab-menu, .tab-content, .search-container {{ position: relative; z-index: 1; }}
@@ -201,7 +199,6 @@ body {{
     justify-content: center;
     gap: 18px;
 }}
-.poring-img {{ width: 65px; }}
 
 .header {{
     font-family: 'Cinzel', serif;
@@ -334,6 +331,7 @@ body {{
     display: flex;
     gap: 22px;
     align-items: flex-start;
+    width: 100%;
 }}
 .main-content-area {{ flex: 1; min-width: 0; }}
 .sidebar-area {{
@@ -365,12 +363,13 @@ body {{
     margin-bottom: 20px;
     overflow-x: auto;
     padding-bottom: 8px;
+    width: 100%;
 }}
 
 .team-box {{
     flex: 1;
-    min-width: 130px;
-    max-width: 160px;
+    min-width: 140px;
+    max-width: 180px;
     padding: 8px;
     border: 1px solid #475569;
     border-radius: 13px;
@@ -459,13 +458,6 @@ body.screenshot-mode {{
 }}
 .screenshot-mode .tab-content {{ 
     display: block !important; 
-}}
-.screenshot-mode .container {{ 
-    max-width: none !important; 
-    border: none !important;
-    box-shadow: none !important;
-    padding: 20px 25px 35px !important;
-    background: transparent !important;
 }}
 
 @media (max-width: 1200px) {{
@@ -668,7 +660,6 @@ html += f"""
     </div>
 </div>
 
-<!-- SCRIPT JAVASCRIPT EXTERNAL -->
 <script>
 {js_content}
 </script>
@@ -678,6 +669,6 @@ html += f"""
 """
 
 # ==========================================
-# RENDER KE STREAMLIT (INI YANG KURANG SEBELUMNYA)
+# RENDER KE STREAMLIT (TINGGI DIBESARKAN & LEBAR FULL)
 # ==========================================
-components.html(html, height=1200, scrolling=True)
+components.html(html, height=2200, scrolling=True)
