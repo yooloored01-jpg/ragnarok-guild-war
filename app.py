@@ -183,18 +183,19 @@ html = f"""
 
 * {{ box-sizing: border-box; }}
 
-body {{
+body {
     margin: 0;
     padding: 10px 20px;
     color: #ffffff;
     font-family: 'Roboto', Arial, sans-serif;
     background-color: #4FE8CC;
-    background-image: linear-gradient(rgba(15, 23, 42, 0.90), rgba(15, 23, 42, 0.93)), url('{ro_b64}');
+    /* Ganti warna di dalam linear-gradient agar tidak hitam pekat */
+    background-image: linear-gradient(rgba(13, 148, 136, 0.85), rgba(15, 23, 42, 0.90)), url('{ro_b64}');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
     width: 100%;
-}}
+}
 
 .container {{
     width: 100%;
