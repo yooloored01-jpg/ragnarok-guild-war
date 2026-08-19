@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import streamlit as st
 
@@ -7,41 +8,33 @@ import streamlit as st
 st.set_page_config(layout="wide", page_title="Ragnarok Guild War - Battle Strategy")
 
 # ==========================================
-# KONFIGURASI LINK GOOGLE SHEETS ONLINE
+# KONFIGURASI LINK EXCEL / DATA
 # ==========================================
-# Masukkan link Google Sheets Anda di sini
-SHEET_URL = (
-    "https://docs.google.com/spreadsheets/d/1a__PWfdLc5XLcstIiexAtboh1iiKdCqtTxVzQ_8Jf6E/edit?usp=sharing"
-)
-
-csv_main = SHEET_URL.replace("/edit?usp=sharing", "/gviz/tq?tqx=out:csv&sheet=Main")
-csv_sub = SHEET_URL.replace("/edit?usp=sharing", "/gviz/tq?tqx=out:csv&sheet=Sub")
-csv_data = SHEET_URL.replace(
-    "/edit?usp=sharing", "/gviz/tq?tqx=out:csv&sheet=Data"
-)
-
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+excel_path = os.path.join(BASE_DIR, "Book1.xlsx")
 tanggal_war = "Jumat, 18 Agustus 2026"
 
+# 1. Baca data dari Excel (Jika file Excel lokal tidak ada, bisa disesuaikan ke Google Sheets)
+try:
+    xls = pd.ExcelFile(excel_path)
+    df_main = pd.read_excel(excel_path, sheet_name="Main")
+    df_sub = pd.read_excel(excel_path, sheet_name="Sub")
+    df_job = pd.read_excel(excel_path, sheet_name="Data")
+except Exception:
+    st.error(
+        "File Book1.xlsx tidak ditemukan di folder lokal. Pastikan file Excel sudah di-upload ke GitHub!"
+    )
+    st.stop()
 
-# 1. Baca data secara online dari Google Sheets (dengan cache 60 detik)
-@st.cache_data(ttl=60)
-def load_data():
-  df_main = pd.read_csv(csv_main)
-  df_sub = pd.read_csv(csv_sub)
-  df_job = pd.read_csv(csv_data)
-  return df_main, df_sub, df_job
-
-
-df_main, df_sub, df_job = load_data()
 sub_cols = list(df_sub.columns)
 
 # 2. Mapping Job dari Sheet Data
 job_map = {}
 for _, row in df_job.iterrows():
-  p_name = row.iloc[0]
-  j_name = row.iloc[1]
-  if pd.notna(p_name) and pd.notna(j_name):
-    job_map[str(p_name).strip().lower()] = str(j_name).strip().lower()
+    p_name = row.iloc[0]
+    j_name = row.iloc[1]
+    if pd.notna(p_name) and pd.notna(j_name):
+        job_map[str(p_name).strip().lower()] = str(j_name).strip().lower()
 
 # Palet Warna Job Ragnarok
 job_colors = {
@@ -68,102 +61,8 @@ job_text_colors = {
     "default": "#f1f5f9",
 }
 
-# 3. JavaScript interaktif untuk Search & Tabs (Disematkan langsung agar aman di Streamlit)
-js_content = """
-<script>
-function toggleScreenshotMode() {
-    document.body.classList.toggle('screenshot-mode');
-    if (document.body.classList.contains('screenshot-mode')) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-}
-
-function openTab(evt, tabName) {
-    var i, tabcontent, tabbtns;
-    tabcontent = document.getElementsByClassName("tab-content");
-    for (i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].classList.remove("active");
-    }
-    tabbtns = document.getElementsByClassName("tab-btn");
-    for (i = 0; i < tabbtns.length; i++) {
-        tabbtns[i].classList.remove("active");
-    }
-    document.getElementById(tabName).classList.add("active");
-    evt.currentTarget.classList.add("active");
-}
-
-function handleSearchKey(event) {
-    if (event.key === 'Enter') {
-        searchPlayer();
-    }
-}
-
-function searchPlayer() {
-    var input = document.getElementById('searchInput').value.trim().toLowerCase();
-    var resultDiv = document.getElementById('searchResult');
-    
-    if (!input) {
-        resultDiv.style.display = 'block';
-        resultDiv.style.borderLeftColor = '#f87171';
-        resultDiv.innerHTML = "⚠️ Silakan ketik nickname terlebih dahulu!";
-        return;
-    }
-
-    var players = document.querySelectorAll('.player');
-    var found = false;
-
-    players.forEach(function(p) { p.style.boxShadow = 'none'; });
-
-    for (var i = 0; i < players.length; i++) {
-        var p = players[i];
-        var nickAttr = p.getAttribute('data-nick');
-        
-        if (nickAttr && nickAttr.includes(input)) {
-            found = true;
-            var teamBox = p.closest('.team-box');
-            var flexContainer = p.closest('.teams-flex-container');
-            var fieldName = teamBox.getAttribute('data-field');
-            var groupName = teamBox.getAttribute('data-group');
-            var teamName = teamBox.getAttribute('data-team');
-            var realName = p.innerText;
-
-            if (fieldName === 'Main Field') {
-                document.querySelector('.tab-btn:nth-child(1)').click();
-            } else {
-                document.querySelector('.tab-btn:nth-child(2)').click();
-            }
-
-            setTimeout(function() {
-                if (flexContainer) {
-                    flexContainer.scrollTo({
-                        left: teamBox.offsetLeft - flexContainer.offsetLeft - 20,
-                        behavior: 'smooth'
-                    });
-                }
-                p.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 150);
-
-            p.style.boxShadow = '0 0 15px 4px #facc15';
-
-            resultDiv.style.display = 'block';
-            resultDiv.style.borderLeftColor = '#38bdf8';
-            resultDiv.innerHTML = "✅ Ditemukan! <b>" + realName + "</b> terdaftar di <b>" + fieldName + "</b> &gt; <b>" + groupName + "</b> &gt; <span style='color:#facc15;'>" + teamName + "</span>";
-            break;
-        }
-    }
-
-    if (!found) {
-        resultDiv.style.display = 'block';
-        resultDiv.style.borderLeftColor = '#f87171';
-        resultDiv.innerHTML = "❌ Nickname \\"<b>" + input + "</b>\\" tidak ditemukan di daftar Main maupun Sub Field. Coba periksa ejaannya.";
-    }
-}
-</script>
-"""
-
-# 4. Rakit Tampilan HTML persis seperti buatan Anda
-html = (
-    f"""
+# 3. Rakit Tampilan HTML Langsung di Python (Tanpa iframe terpotong)
+html_content = f"""
 <!DOCTYPE html>
 <html>
 <head>
@@ -177,29 +76,22 @@ html = (
 
 body {{
     margin: 0;
-    min-height: 100vh;
     padding: 25px;
     color: #ffffff;
     font-family: 'Roboto', Arial, sans-serif;
     background: 
-       linear-gradient(rgba(10, 15, 30, 0.85), rgba(15, 23, 42, 0.85)),
-       url('ro.jpg');
-   background-size: cover;
-   background-position: center;
-   background-attachment: fixed;
-    overflow-x: auto;
+        linear-gradient(rgba(10, 15, 30, 0.85), rgba(15, 23, 42, 0.85)),
+        url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1920&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
 }}
 
 .container {{
-    position: relative;
     max-width: 1750px;
     margin: auto;
-    padding: 35px;
-    border-radius: 20px;
-    background: transparent;
+    padding: 20px;
 }}
-
-.banner-header, .tab-menu, .tab-content, .search-container {{ position: relative; z-index: 1; }}
 
 .banner-header {{ text-align: center; padding: 5px 0 15px; }}
 .title-wrapper {{
@@ -208,8 +100,6 @@ body {{
     justify-content: center;
     gap: 18px;
 }}
-.poring-img {{ width: 65px; }}
-
 .header {{
     font-family: 'Cinzel', serif;
     color: #facc15;
@@ -225,7 +115,6 @@ body {{
     letter-spacing: 4px;
     font-weight: 700;
 }}
-.date-container {{ text-align: center; }}
 .date-badge {{
     display: inline-block;
     margin: 14px auto 12px;
@@ -240,6 +129,7 @@ body {{
     font-weight: 700;
 }}
 
+/* SEARCH BOX */
 .search-container {{
     max-width: 600px;
     margin: 0 auto 25px auto;
@@ -255,7 +145,6 @@ body {{
     color: #facc15;
     font-family: 'Cinzel', serif;
     font-size: 14px;
-    letter-spacing: 1px;
 }}
 .search-box-wrapper {{ display: flex; gap: 8px; }}
 .search-input {{
@@ -268,7 +157,6 @@ body {{
     font-size: 14px;
     outline: none;
 }}
-.search-input:focus {{ border-color: #facc15; }}
 .search-btn {{
     font-family: 'Cinzel', serif;
     font-weight: 700;
@@ -279,13 +167,10 @@ body {{
     border-radius: 8px;
     cursor: pointer;
 }}
-.search-btn:hover {{ background: #f59e0b; }}
 .search-result {{
     margin-top: 12px;
     font-size: 13px;
     color: #38bdf8;
-    font-weight: 500;
-    min-height: 20px;
     text-align: left;
     background: #1e293b;
     padding: 8px 12px;
@@ -294,72 +179,61 @@ body {{
     display: none;
 }}
 
-.controls {{
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin: 0 0 20px;
-}}
-.control-btn, .tab-btn {{
-    font-family: 'Cinzel', serif;
-    font-weight: 700;
-    letter-spacing: 1px;
-    color: #ffffff;
-    background: #0f172a;
-    border: 1px solid #d97706;
-    border-radius: 10px;
-    cursor: pointer;
-}}
-.control-btn {{ padding: 10px 18px; font-size: 12px; }}
-.control-btn:hover, .tab-btn:hover {{
-    border-color: #facc15;
-    background: #1e293b;
-}}
-
+/* TAB MENU */
 .tab-menu {{
     display: flex;
     justify-content: center;
     gap: 12px;
     padding: 12px 0 18px;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     margin-bottom: 24px;
 }}
-.tab-btn {{ min-width: 230px; padding: 12px 22px; font-size: 13px; }}
-.tab-btn.active {{
+.tab-btn {{
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
     color: #ffffff;
-    border-color: #f59e0b;
+    background: #0f172a;
+    border: 1px solid #d97706;
+    border-radius: 10px;
+    padding: 12px 22px;
+    cursor: pointer;
+    min-width: 230px;
+}}
+.tab-btn.active {{
     background: #b45309;
+    border-color: #f59e0b;
 }}
 
 .tab-content {{ display: none; }}
 .tab-content.active {{ display: block; }}
 
+/* CONTENT & SIDEBAR LAYOUT (PERBAIKAN TUMPANG TINDIH) */
 .content-wrapper {{
     display: flex;
-    gap: 22px;
+    gap: 25px;
     align-items: flex-start;
+    width: 100%;
 }}
-.main-content-area {{ flex: 1; min-width: 0; }}
+.main-content-area {{
+    flex: 1;
+    min-width: 0;
+}}
 .sidebar-area {{
-    width: 370px;
+    width: 350px;
     flex-shrink: 0;
+    background: #0f172a;
+    border: 1px solid #d97706;
+    border-radius: 12px;
+    padding: 18px;
     position: sticky;
     top: 20px;
-    margin-top: 55px;
 }}
 
 .section-title {{
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 24px 0 14px;
-    padding: 0 0 8px 4px;
+    margin: 20px 0 12px;
+    padding-bottom: 6px;
     color: #facc15;
     font-family: 'Cinzel', serif;
-    font-size: 17px;
-    letter-spacing: .8px;
+    font-size: 16px;
     border-bottom: 2px solid #d97706;
     font-weight: 700;
 }}
@@ -368,114 +242,62 @@ body {{
     display: flex;
     flex-wrap: nowrap;
     gap: 10px;
-    margin-bottom: 20px;
     overflow-x: auto;
-    padding-bottom: 8px;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
 }}
 
 .team-box {{
-    flex: 1;
-    min-width: 130px;
-    max-width: 160px;
+    flex: 0 0 145px;
     padding: 8px;
     border: 1px solid #475569;
-    border-radius: 13px;
+    border-radius: 10px;
     background: #0f172a;
 }}
-.team-box:hover {{
-    border-color: #facc15;
-    background: #1e293b;
-}}
-
-.team-box.chaos-box {{
-    background: #064e3b;
-    border: 1px solid #059669;
-}}
-.team-box.chaos-box h4 {{
-    color: #34d399;
-    border-bottom: 1px solid #059669;
-}}
-
 .team-box h4 {{
     margin: 0 0 8px;
-    padding: 2px 0 6px;
+    padding-bottom: 4px;
     color: #93c5fd;
     text-align: center;
     font-family: 'Cinzel', serif;
-    font-size: 13px;
-    letter-spacing: 1px;
+    font-size: 12px;
     border-bottom: 1px solid #334155;
 }}
 
 .player {{
-    min-height: 34px;
-    margin: 5px 0;
-    padding: 6px 8px;
+    min-height: 32px;
+    margin: 4px 0;
+    padding: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 6px;
     background: var(--job-bg);
     color: var(--job-fg);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     text-align: center;
     word-break: break-word;
     border: 1px solid rgba(255, 255, 255, 0.15);
 }}
 
-.empty-team {{
-    min-height: 34px;
-    display: grid;
-    place-items: center;
-    color: #94a3b8;
-    border: 1px dashed #475569;
-    border-radius: 6px;
-    font-size: 12px;
-}}
-
-.msg-box {{
-    padding: 18px 20px;
-    border-radius: 12px;
-    background: #0f172a;
-    line-height: 1.5;
-    font-size: 15px;
-    margin-bottom: 20px;
-    border: 1px solid #d97706;
-}}
 .msg-box h4 {{
     margin: 0 0 8px;
-    padding-bottom: 6px;
+    color: #facc15;
     font-family: 'Cinzel', serif;
     font-size: 13px;
-    letter-spacing: 1px;
     border-bottom: 1px solid #334155;
-    color: #facc15;
+    padding-bottom: 6px;
+}}
+.msg-box p {{
+    font-size: 13px;
+    line-height: 1.4;
+    margin: 0;
 }}
 
-body.screenshot-mode {{
-    padding: 10px !important;
-    background: #0f172a !important;
-}}
-.screenshot-mode .tab-menu, 
-.screenshot-mode .controls,
-.screenshot-mode .search-container {{ 
-    display: none !important; 
-}}
-.screenshot-mode .tab-content {{ 
-    display: block !important; 
-}}
-.screenshot-mode .container {{ 
-    max-width: none !important; 
-    border: none !important;
-    box-shadow: none !important;
-    padding: 20px 25px 35px !important;
-    background: transparent !important;
-}}
-
-@media (max-width: 1200px) {{
+@media (max-width: 1100px) {{
     .content-wrapper {{ flex-direction: column; }}
-    .sidebar-area {{ width: 100%; position: static; margin-top: 0 !important; }}
+    .sidebar-area {{ width: 100%; position: static; }}
 }}
 </style>
 </head>
@@ -487,202 +309,147 @@ body.screenshot-mode {{
             <div class="header">RAGNAROK GUILD LEAGUE WAR</div>
         </div>
         <div class="subheader">Official Deployment & Strategy Dashboard Guild Lumiere</div>
-        <div class="date-container">
-            <div class="date-badge">📅 Jadwal War: {tanggal_war}</div>
-        </div>
+        <div class="date-badge">📅 Jadwal War: {tanggal_war}</div>
     </div>
 
-    <!-- FITUR SEARCH NICKNAME -->
+    <!-- SEARCH -->
     <div class="search-container">
         <h3>🔍 CEK POSISI PLAYER</h3>
         <div class="search-box-wrapper">
-            <input type="text" id="searchInput" class="search-input" placeholder="Ketik nickname kamu di sini..." onkeypress="handleSearchKey(event)">
+            <input type="text" id="searchInput" class="search-input" placeholder="Ketik nickname kamu..." onkeypress="if(event.key==='Enter')searchPlayer()">
             <button class="search-btn" onclick="searchPlayer()">CARI</button>
         </div>
         <div id="searchResult" class="search-result"></div>
     </div>
 
-    <div class="controls">
-        <button class="control-btn" onclick="toggleScreenshotMode()">📸 SCREENSHOT MODE (FULL)</button>
-        <button class="control-btn" onclick="window.print()">🖨️ PRINT / PDF</button>
-    </div>
-
-    <!-- TAB MENU NAVIGATION -->
+    <!-- TABS -->
     <div class="tab-menu">
         <button class="tab-btn active" onclick="openTab(event, 'main-tab')">⚔️ MAIN FIELD (60)</button>
         <button class="tab-btn" onclick="openTab(event, 'sub-tab')">🛡️ SUB FIELD (85)</button>
     </div>
 
-    <!-- TAB 1: MAIN FIELD -->
+    <!-- TAB 1: MAIN -->
     <div id="main-tab" class="tab-content active">
         <div class="content-wrapper">
             <div class="main-content-area">
-                
                 <div class="section-title">⚔️ PARTY RAID MAIN (TEAM 1 - 8)</div>
                 <div class="teams-flex-container">
 """
-)
 
+# Render Team Main 1-8
 main_cols = list(df_main.columns)
 for i, col in enumerate(main_cols[:8]):
-  if col in df_main.columns:
-    header_name = f"TEAM {i + 1}"
-    html += f'<div class="team-box" data-field="Main Field" data-group="Party Raid Main" data-team="{header_name}"><h4>{header_name}</h4>'
-    values = df_main[col].dropna()
-    if len(values) == 0:
-      html += '<div class="empty-team">—</div>'
-    for val in values:
-      p_name = str(val).strip()
-      p_lower = p_name.lower().split("(")[0].strip()
-      job = job_map.get(p_lower, "default")
-      bg_col = job_colors.get(job, job_colors["default"])
-      txt_col = job_text_colors.get(job, job_text_colors["default"])
-      html += f'<div class="player" data-nick="{p_name.lower()}" style="--job-bg: {bg_col}; --job-fg: {txt_col};">{p_name}</div>'
-    html += "</div>"
+    if col in df_main.columns:
+        header_name = f"TEAM {i + 1}"
+        html_content += f'<div class="team-box" data-field="Main Field" data-group="Party Raid Main" data-team="{header_name}"><h4>{header_name}</h4>'
+        for val in df_main[col].dropna():
+            p_name = str(val).strip()
+            p_lower = p_name.lower().split("(")[0].strip()
+            job = job_map.get(p_lower, "default")
+            html_content += f'<div class="player" data-nick="{p_name.lower()}" style="--job-bg: {job_colors.get(job, job_colors["default"])}; --job-fg: {job_text_colors.get(job, job_text_colors["default"])};">{p_name}</div>'
+        html_content += "</div>"
 
-html += f"""
+html_content += """
                 </div>
-
                 <div class="section-title">🛡️ CHAOS PARTY MAIN</div>
                 <div class="teams-flex-container">
 """
 
 for col in main_cols[8:]:
-  if col in df_main.columns:
-    team_title = col.upper()
-    html += f'<div class="team-box" style="flex:unset; width:160px;" data-field="Main Field" data-group="Chaos Party Main" data-team="{team_title}"><h4>{team_title}</h4>'
-    values = df_main[col].dropna()
-    if len(values) == 0:
-      html += '<div class="empty-team">—</div>'
-    for val in values:
-      p_name = str(val).strip()
-      p_lower = p_name.lower().split("(")[0].strip()
-      job = job_map.get(p_lower, "default")
-      bg_col = job_colors.get(job, job_colors["default"])
-      txt_col = job_text_colors.get(job, job_text_colors["default"])
-      html += f'<div class="player" data-nick="{p_name.lower()}" style="--job-bg: {bg_col}; --job-fg: {txt_col};">{p_name}</div>'
-    html += "</div>"
+    if col in df_main.columns:
+        team_title = col.upper()
+        html_content += f'<div class="team-box" data-field="Main Field" data-group="Chaos Party Main" data-team="{team_title}"><h4>{team_title}</h4>'
+        for val in df_main[col].dropna():
+            p_name = str(val).strip()
+            p_lower = p_name.lower().split("(")[0].strip()
+            job = job_map.get(p_lower, "default")
+            html_content += f'<div class="player" data-nick="{p_name.lower()}" style="--job-bg: {job_colors.get(job, job_colors["default"])}; --job-fg: {job_text_colors.get(job, job_text_colors["default"])};">{p_name}</div>'
+        html_content += "</div>"
 
-html += f"""
+html_content += f"""
                 </div>
             </div>
 
+            <!-- SIDEBAR CATATAN (TIDAK TUMPANG TINDIH LAGI) -->
             <div class="sidebar-area">
                 <div class="msg-box">
-                    <h4>⚠️ CATATAN & INSTRUKSI MAIN FIELD</h4>
+                    <h4>⚠️ CATATAN & INSTRUKSI</h4>
                     <p>
                         <b>📊 Info Umum (Total 60 Player):</b><br>
-                        • Terbagi menjadi <b>2 Party Raid</b> dan <b>4 Normal Party</b>.<br>
-                        • <b>Tolong prepare di 20.45 untuk join party raid / join party masing".<br><br>                        
-                        <b>🎯 Pembagian Tugas:</b><br>
-                        • <b>Team 1 - 4:</b> Lane Mid (stay push/defense di lane mid).<br>
-                        • <b>Team 5 - 6:</b> Lane Top (push/defense lane top / atas).<br>
-                        • <b>Team 7 - 8:</b> Lane Bottom (push/defense lane bottom / bawah).<br>
-                        • <b>Team Chaos 1 - 4:</b> Tim Rusuh / Backup lane yang ke push dari 3 lane bantu cover, kalau bisa dorong musuh lewat belakang.
+                        • Terbagi jadi 2 Party Raid & 4 Normal Party.<br>
+                        • Prepare jam 20.45.<br><br>
+                        <b>🎯 Tugas:</b><br>
+                        • Team 1-4: Lane Mid<br>
+                        • Team 5-6: Lane Top<br>
+                        • Team 7-8: Lane Bottom<br>
+                        • Chaos: Tim Rusuh / Backup.
                     </p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- TAB 2: SUB FIELD -->
+    <!-- TAB 2: SUB -->
     <div id="sub-tab" class="tab-content">
-        <div class="section-title">🛡️ PARTY RAID SUB 1 & CHAOS PARTY (TEAM 1 - 8)</div>
+        <div class="section-title">🛡️ SUB FIELD (DAFTAR TEAM)</div>
         <div class="teams-flex-container">
 """
 
 for i, col in enumerate(sub_cols[:8]):
-  if col in df_sub.columns:
-    header_name = f"TEAM {i + 1}"
-    html += f'<div class="team-box" data-field="Sub Field" data-group="Party Raid Sub 1" data-team="{header_name}"><h4>{header_name}</h4>'
-    values = df_sub[col].dropna()
-    if len(values) == 0:
-      html += '<div class="empty-team">—</div>'
-    for val in values:
-      p_name = str(val).strip()
-      p_lower = p_name.lower().split("(")[0].strip()
-      job = job_map.get(p_lower, "default")
-      bg_col = job_colors.get(job, job_colors["default"])
-      txt_col = job_text_colors.get(job, job_text_colors["default"])
-      html += f'<div class="player" data-nick="{p_name.lower()}" style="--job-bg: {bg_col}; --job-fg: {txt_col};">{p_name}</div>'
-    html += "</div>"
+    if col in df_sub.columns:
+        header_name = f"TEAM {i + 1}"
+        html_content += f'<div class="team-box" data-field="Sub Field" data-group="Party Raid Sub" data-team="{header_name}"><h4>{header_name}</h4>'
+        for val in df_sub[col].dropna():
+            p_name = str(val).strip()
+            p_lower = p_name.lower().split("(")[0].strip()
+            job = job_map.get(p_lower, "default")
+            html_content += f'<div class="player" data-nick="{p_name.lower()}" style="--job-bg: {job_colors.get(job, job_colors["default"])}; --job-fg: {job_text_colors.get(job, job_text_colors["default"])};">{p_name}</div>'
+        html_content += "</div>"
 
-for idx, col in enumerate(sub_cols[16:]):
-  if col in df_sub.columns:
-    c_name = col.upper()
-    if "PINALTY" in c_name:
-      header_color = "color: #f87171; border-bottom: 1px solid #ef4444;"
-      box_class = "team-box"
-      group_name = "Sub Field (Penalty)"
-    else:
-      header_color = "color: #34d399; border-bottom: 1px solid #059669;"
-      box_class = "team-box chaos-box"
-      group_name = "Sub Field (Chaos/Extra)"
-
-    html += f'<div class="{box_class}" data-field="Sub Field" data-group="{group_name}" data-team="{c_name}"><h4 style="{header_color}">{c_name}</h4>'
-    values = df_sub[col].dropna()
-    if len(values) == 0:
-      html += '<div class="empty-team">—</div>'
-    for val in values:
-      p_name = str(val).strip()
-      p_lower = p_name.lower().split("(")[0].strip()
-      job = job_map.get(p_lower, "default")
-      bg_col = job_colors.get(job, job_colors["default"])
-      txt_col = job_text_colors.get(job, job_text_colors["default"])
-      html += f'<div class="player" data-nick="{p_name.lower()}" style="--job-bg: {bg_col}; --job-fg: {txt_col};">{p_name}</div>'
-    html += "</div>"
-
-html += f"""
-        </div>
-
-        <!-- PARTY RAID SUB 2 (TEAM 1 - 8) -->
-        <div class="section-title">🛡️ PARTY RAID SUB 2 (TEAM 1 - 8)</div>
-        <div class="teams-flex-container">
-"""
-
-for i, col in enumerate(sub_cols[8:16]):
-  if col in df_sub.columns:
-    header_name = f"TEAM {i + 1}"
-    html += f'<div class="team-box" data-field="Sub Field" data-group="Party Raid Sub 2" data-team="{header_name}"><h4>{header_name}</h4>'
-    values = df_sub[col].dropna()
-    if len(values) == 0:
-      html += '<div class="empty-team">—</div>'
-    for val in values:
-      p_name = str(val).strip()
-      p_lower = p_name.lower().split("(")[0].strip()
-      job = job_map.get(p_lower, "default")
-      bg_col = job_colors.get(job, job_colors["default"])
-      txt_col = job_text_colors.get(job, job_text_colors["default"])
-      html += f'<div class="player" data-nick="{p_name.lower()}" style="--job-bg: {bg_col}; --job-fg: {txt_col};">{p_name}</div>'
-    html += "</div>"
-
-html += f"""
-        </div>
-
-        <!-- SIDEBAR SUB FIELD DI BAWAH -->
-        <div style="margin-top: 30px; max-width: 100%;">
-            <div class="msg-box">
-                <h4>⚠️ CATATAN & INSTRUKSI SUB FIELD</h4>
-                <p>
-                    <b>📊 Info Umum (Total 85 Player):</b><br>
-                    • Untuk party yang tidak mendapatkan <b>Priest</b>, mohon maaf karena keterbatasan player dan banyak yang mungkin tidak bisa ON.<br>
-                    • Terbagi menjadi <b>2 Party Raid</b> dan <b>1 Chaos Party</b>.<br>
-                    • <b>Tolong prepare di 20.45 untuk join party raid / join party masing".<br><br> 
-                    
-                    <b>🎯 Tugas di Sub Field:</b><br>
-                    • <b>PVP:</b> Ketemu player lain langsung <b>KILL!</b><br>
-                    • <b>Farming Monster:</b> Bunuh monster, ambil <b>Batu/Item</b>, bawa balik ke base!<br>
-                    • <b>Fungsi Batu:</b> Buff ATK/DEF + Repair Tower di Main Field.
-                </p>               
-            </div>
+html_content += """
         </div>
     </div>
 </div>
 
-{js_content}
+<script>
+function openTab(evt, tabName) {
+    var i, tabcontent, tabbtns;
+    tabcontent = document.getElementsByClassName("tab-content");
+    for (i = 0; i < tabcontent.length; i++) { tabcontent[i].classList.remove("active"); }
+    tabbtns = document.getElementsByClassName("tab-btn");
+    for (i = 0; i < tabbtns.length; i++) { tabbtns[i].classList.remove("active"); }
+    document.getElementById(tabName).classList.add("active");
+    evt.currentTarget.classList.add("active");
+}
+
+function searchPlayer() {
+    var input = document.getElementById('searchInput').value.trim().toLowerCase();
+    var resultDiv = document.getElementById('searchResult');
+    if (!input) {
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = "⚠️ Ketik nickname dulu!";
+        return;
+    }
+    var players = document.querySelectorAll('.player');
+    var found = false;
+    players.forEach(function(p) {
+        if (p.getAttribute('data-nick').includes(input)) {
+            found = true;
+            p.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            p.style.boxShadow = '0 0 15px 4px #facc15';
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = "✅ Ditemukan: <b>" + p.innerText + "</b>";
+        }
+    });
+    if (!found) {
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = "❌ Tidak ditemukan.";
+    }
+}
+</script>
 </body>
 </html>
 """
 
-# Render langsung ke Web Streamlit
-st.components.v1.html(html, height=1200, scrolling=True)
+# Render langsung dengan tinggi dinamis yang besar agar tidak terpotong/tumpang tindih
+st.components.v1.html(html_content, height=1400, scrolling=True)
