@@ -1,3 +1,4 @@
+import base64
 import os
 import pandas as pd
 import streamlit as st
@@ -9,6 +10,32 @@ import streamlit.components.v1 as components
 st.set_page_config(page_title="Ragnarok Guild War Strategy", layout="wide")
 
 # ==========================================
+# FUNGSI HELPER: KONVERSI GAMBAR LOKAL KE BASE64
+# ==========================================
+def get_image_base64(path):
+    if os.path.exists(path):
+        with open(path, "rb") as f:
+            data = f.read()
+        encoded = base64.b64encode(data).decode()
+        ext = path.split(".")[-1].lower()
+        if ext == "png":
+            mime = "image/png"
+        elif ext in ["jpg", "jpeg"]:
+            mime = "image/jpeg"
+        else:
+            mime = "image/png"
+        return f"data:{mime};base64,{encoded}"
+    return ""
+
+# Ambil string base64 untuk gambar lokal
+poring_b64 = get_image_base64("poring.png")
+ro_b64 = get_image_base64("ro.png")
+
+# Jika ro.png kosong, fallback ke ro.jpg
+if not ro_b64 and os.path.exists("ro.jpg"):
+    ro_b64 = get_image_base64("ro.jpg")
+
+# ==========================================
 # KONFIGURASI TANGGAL & GOOGLE SHEETS
 # ==========================================
 tanggal_war = "Jumat, 18 Agustus 2026"
@@ -16,12 +43,10 @@ tanggal_war = "Jumat, 18 Agustus 2026"
 # ID Google Sheets Anda
 sheet_id = "1a__PWfdLc5XLcstIiexAtboh1iiKdCqtTxVzQ_8Jf6E"
 
-# URL untuk membaca sheet langsung sebagai CSV via web
 url_main = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet=Main"
 url_sub = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet=Sub"
 url_job = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet=Data"
 
-# 1. Baca data langsung dari Google Sheets
 @st.cache_data
 def load_data():
     df_main = pd.read_csv(url_main)
@@ -32,7 +57,6 @@ def load_data():
 df_main, df_sub, df_job = load_data()
 sub_cols = list(df_sub.columns)
 
-# 2. Mapping Job dari Sheet Data
 job_map = {}
 for _, row in df_job.iterrows():
     p_name = row.iloc[0]
@@ -40,7 +64,6 @@ for _, row in df_job.iterrows():
     if pd.notna(p_name) and pd.notna(j_name):
         job_map[str(p_name).strip().lower()] = str(j_name).strip().lower()
 
-# Palet Warna Job Ragnarok
 job_colors = {
     "priest": "#0f5132",       
     "swordman": "#842029",      
@@ -65,8 +88,6 @@ job_text_colors = {
     "default": "#f1f5f9"
 }
 
-# 3. JavaScript Eksternal untuk Tab & Search
-BASE_DIR = os.path.dirname(os.path.abspath(__file__)) if '__file__' in locals() else "."
 js_content = """
 function toggleScreenshotMode() {
     document.body.classList.toggle('screenshot-mode');
@@ -77,25 +98,16 @@ function toggleScreenshotMode() {
 
 function openTab(evt, tabName) {
     var i, tabcontent, tabbtns;
-    
     tabcontent = document.getElementsByClassName("tab-content");
-    for (i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].classList.remove("active");
-    }
-    
+    for (i = 0; i < tabcontent.length; i++) { tabcontent[i].classList.remove("active"); }
     tabbtns = document.getElementsByClassName("tab-btn");
-    for (i = 0; i < tabbtns.length; i++) {
-        tabbtns[i].classList.remove("active");
-    }
-    
+    for (i = 0; i < tabbtns.length; i++) { tabbtns[i].classList.remove("active"); }
     document.getElementById(tabName).classList.add("active");
     evt.currentTarget.classList.add("active");
 }
 
 function handleSearchKey(event) {
-    if (event.key === 'Enter') {
-        searchPlayer();
-    }
+    if (event.key === 'Enter') { searchPlayer(); }
 }
 
 function searchPlayer() {
@@ -111,7 +123,6 @@ function searchPlayer() {
 
     var players = document.querySelectorAll('.player');
     var found = false;
-
     players.forEach(function(p) { p.style.boxShadow = 'none'; });
 
     for (var i = 0; i < players.length; i++) {
@@ -144,7 +155,6 @@ function searchPlayer() {
             }, 150);
 
             p.style.boxShadow = '0 0 15px 4px #facc15';
-
             resultDiv.style.display = 'block';
             resultDiv.style.borderLeftColor = '#38bdf8';
             resultDiv.innerHTML = "✅ Ditemukan! <b>" + realName + "</b> terdaftar di <b>" + fieldName + "</b> &gt; <b>" + groupName + "</b> &gt; <span style='color:#facc15;'>" + teamName + "</span>";
@@ -155,12 +165,11 @@ function searchPlayer() {
     if (!found) {
         resultDiv.style.display = 'block';
         resultDiv.style.borderLeftColor = '#f87171';
-        resultDiv.innerHTML = "❌ Nickname \\"<b>" + input + "</b>\\" tidak ditemukan di daftar Main maupun Sub Field. Coba periksa ejaannya.";
+        resultDiv.innerHTML = "❌ Nickname \\"<b>" + input + "</b>\\" tidak ditemukan. Coba periksa ejaannya.";
     }
 }
 """
 
-# 4. Rakit Tampilan HTML dengan Gambar Poring & Logo
 html = f"""
 <!DOCTYPE html>
 <html>
@@ -178,7 +187,12 @@ body {{
     padding: 10px 20px;
     color: #ffffff;
     font-family: 'Roboto', Arial, sans-serif;
-    background: #0f172a;
+    background-color: #0f172a;
+    /* Mengatur ro.png sebagai background latar belakang dengan transparansi */
+    background-image: linear-gradient(rgba(15, 23, 42, 0.90), rgba(15, 23, 42, 0.93)), url('{ro_b64}');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
     width: 100%;
 }}
 
@@ -199,9 +213,10 @@ body {{
     justify-content: center;
     gap: 15px;
 }}
-.poring-img {{
+.local-img {{
     width: 55px;
     height: auto;
+    object-fit: contain;
     filter: drop-shadow(0 0 8px rgba(250, 204, 21, 0.5));
 }}
 
@@ -228,7 +243,7 @@ body {{
     border: 1px solid #d97706;
     border-radius: 999px;
     color: #fef3c7;
-    background: #0f172a;
+    background: rgba(15, 23, 42, 0.8);
     font-family: 'Cinzel', serif;
     font-size: 12px;
     letter-spacing: 1px;
@@ -239,12 +254,13 @@ body {{
 .search-container {{
     max-width: 600px;
     margin: 0 auto 25px auto;
-    background: #0f172a;
+    background: rgba(15, 23, 42, 0.85);
     border: 2px solid #d97706;
     border-radius: 14px;
     padding: 15px 20px;
     text-align: center;
     box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    backdrop-filter: blur(5px);
 }}
 .search-container h3 {{
     margin: 0 0 10px 0;
@@ -302,10 +318,11 @@ body {{
     font-weight: 700;
     letter-spacing: 1px;
     color: #ffffff;
-    background: #0f172a;
+    background: rgba(15, 23, 42, 0.85);
     border: 1px solid #d97706;
     border-radius: 10px;
     cursor: pointer;
+    backdrop-filter: blur(5px);
 }}
 .control-btn {{ padding: 10px 18px; font-size: 12px; }}
 .control-btn:hover, .tab-btn:hover {{
@@ -378,15 +395,16 @@ body {{
     padding: 8px;
     border: 1px solid #475569;
     border-radius: 13px;
-    background: #0f172a;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(4px);
 }}
 .team-box:hover {{
     border-color: #facc15;
-    background: #1e293b;
+    background: rgba(30, 41, 59, 0.9);
 }}
 
 .team-box.chaos-box {{
-    background: #064e3b;
+    background: rgba(6, 78, 59, 0.85);
     border: 1px solid #059669;
 }}
 .team-box.chaos-box h4 {{
@@ -435,7 +453,8 @@ body {{
 .msg-box {{
     padding: 18px 20px;
     border-radius: 12px;
-    background: #0f172a;
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(5px);
     line-height: 1.5;
     font-size: 15px;
     margin-bottom: 20px;
@@ -454,7 +473,6 @@ body {{
 /* SCREENSHOT MODE FULL */
 body.screenshot-mode {{
     padding: 10px !important;
-    background: #0f172a !important;
 }}
 .screenshot-mode .tab-menu, 
 .screenshot-mode .controls,
@@ -476,10 +494,9 @@ body.screenshot-mode {{
 <div class="container">
     <div class="banner-header">
         <div class="title-wrapper">
-            <!-- Gambar Poring Menggunakan Aset Publik agar Langsung Muncul -->
-            <img src="poring.png" class="poring-img" alt="Poring">
+            {"<img src='" + poring_b64 + "' class='local-img' alt='Poring'>" if poring_b64 else ""}
             <div class="header">RAGNAROK GUILD LEAGUE WAR</div>
-            <img src="poring.png" class="poring-img" alt="Poring">
+            {"<img src='" + poring_b64 + "' class='local-img' alt='Poring'>" if poring_b64 else ""}
         </div>
         <div class="subheader">Official Deployment & Strategy Dashboard Guild Lumiere</div>
         <div class="date-container">
@@ -643,7 +660,7 @@ for i, col in enumerate(sub_cols[8:16]):
             bg_col = job_colors.get(job, job_colors["default"])
             txt_col = job_text_colors.get(job, job_text_colors["default"])
             html += f'<div class="player" data-nick="{p_name.lower()}" style="--job-bg: {bg_col}; --job-fg: {txt_col};">{p_name}</div>'
-        html += '</div>'
+        html += ''], '</div>'
 
 html += f"""
         </div>
