@@ -1,4 +1,3 @@
-import os
 import pandas as pd
 import streamlit as st
 
@@ -8,27 +7,32 @@ import streamlit as st
 st.set_page_config(layout="wide", page_title="Ragnarok Guild War - Battle Strategy")
 
 # ==========================================
-# KONFIGURASI LINK EXCEL / DATA
+# KONFIGURASI GOOGLE SHEETS
 # ==========================================
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-excel_path = os.path.join(BASE_DIR, "Book1.xlsx")
+# Masukkan link Google Sheets Anda yang sudah dipublish ke web dalam bentuk CSV
+# Contoh format link CSV dari Google Sheets per sheet:
+# https://docs.google.com/spreadsheets/d/ID_SPREADSHEET_ANDA/gviz/tq?tqx=out:csv&sheet=NAMA_SHEET
 tanggal_war = "Jumat, 18 Agustus 2026"
 
-# 1. Baca data dari Excel (Jika file Excel lokal tidak ada, bisa disesuaikan ke Google Sheets)
+# Ganti URL di bawah dengan link publis / CSV Google Sheets Anda
+SHEET_ID = "MASUKKAN_SPREADSHEET_ID_ANDA_DISINI"
+url_main = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Main"
+url_sub = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Sub"
+url_job = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Data"
+
 try:
-    xls = pd.ExcelFile(excel_path)
-    df_main = pd.read_excel(excel_path, sheet_name="Main")
-    df_sub = pd.read_excel(excel_path, sheet_name="Sub")
-    df_job = pd.read_excel(excel_path, sheet_name="Data")
+    df_main = pd.read_csv(url_main)
+    df_sub = pd.read_csv(url_sub)
+    df_job = pd.read_csv(url_job)
 except Exception:
     st.error(
-        "File Book1.xlsx tidak ditemukan di folder lokal. Pastikan file Excel sudah di-upload ke GitHub!"
+        "Gagal memuat data dari Google Sheets. Pastikan Google Sheets sudah diset ke 'Anyone with the link can view' dan format URL Sheet ID sudah benar."
     )
     st.stop()
 
 sub_cols = list(df_sub.columns)
 
-# 2. Mapping Job dari Sheet Data
+# Mapping Job dari Sheet Data
 job_map = {}
 for _, row in df_job.iterrows():
     p_name = row.iloc[0]
@@ -61,7 +65,7 @@ job_text_colors = {
     "default": "#f1f5f9",
 }
 
-# 3. Rakit Tampilan HTML Langsung di Python (Tanpa iframe terpotong)
+# Rakit Tampilan HTML Langsung di Python
 html_content = f"""
 <!DOCTYPE html>
 <html>
@@ -206,7 +210,7 @@ body {{
 .tab-content {{ display: none; }}
 .tab-content.active {{ display: block; }}
 
-/* CONTENT & SIDEBAR LAYOUT (PERBAIKAN TUMPANG TINDIH) */
+/* CONTENT & SIDEBAR LAYOUT */
 .content-wrapper {{
     display: flex;
     gap: 25px;
@@ -341,7 +345,7 @@ main_cols = list(df_main.columns)
 for i, col in enumerate(main_cols[:8]):
     if col in df_main.columns:
         header_name = f"TEAM {i + 1}"
-        html_content += f'<div class="team-box" data-field="Main Field" data-group="Party Raid Main" data-team="{header_name}"><h4>{header_name}</h4>'
+        html_content += f'<div class="team-box"><h4>{header_name}</h4>'
         for val in df_main[col].dropna():
             p_name = str(val).strip()
             p_lower = p_name.lower().split("(")[0].strip()
@@ -358,7 +362,7 @@ html_content += """
 for col in main_cols[8:]:
     if col in df_main.columns:
         team_title = col.upper()
-        html_content += f'<div class="team-box" data-field="Main Field" data-group="Chaos Party Main" data-team="{team_title}"><h4>{team_title}</h4>'
+        html_content += f'<div class="team-box"><h4>{team_title}</h4>'
         for val in df_main[col].dropna():
             p_name = str(val).strip()
             p_lower = p_name.lower().split("(")[0].strip()
@@ -370,7 +374,7 @@ html_content += f"""
                 </div>
             </div>
 
-            <!-- SIDEBAR CATATAN (TIDAK TUMPANG TINDIH LAGI) -->
+            <!-- SIDEBAR CATATAN -->
             <div class="sidebar-area">
                 <div class="msg-box">
                     <h4>⚠️ CATATAN & INSTRUKSI</h4>
@@ -398,7 +402,7 @@ html_content += f"""
 for i, col in enumerate(sub_cols[:8]):
     if col in df_sub.columns:
         header_name = f"TEAM {i + 1}"
-        html_content += f'<div class="team-box" data-field="Sub Field" data-group="Party Raid Sub" data-team="{header_name}"><h4>{header_name}</h4>'
+        html_content += f'<div class="team-box"><h4>{header_name}</h4>'
         for val in df_sub[col].dropna():
             p_name = str(val).strip()
             p_lower = p_name.lower().split("(")[0].strip()
@@ -451,5 +455,4 @@ function searchPlayer() {
 </html>
 """
 
-# Render langsung dengan tinggi dinamis yang besar agar tidak terpotong/tumpang tindih
 st.components.v1.html(html_content, height=1400, scrolling=True)
