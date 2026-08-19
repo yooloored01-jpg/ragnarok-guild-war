@@ -188,7 +188,6 @@ body {{
     color: #ffffff;
     font-family: 'Roboto', Arial, sans-serif;
     background-color: #0f172a;
-    /* Mengatur ro.png sebagai background latar belakang dengan transparansi */
     background-image: linear-gradient(rgba(15, 23, 42, 0.90), rgba(15, 23, 42, 0.93)), url('{ro_b64}');
     background-size: cover;
     background-position: center;
@@ -250,7 +249,6 @@ body {{
     font-weight: 700;
 }}
 
-/* SEARCH BOX STYLING */
 .search-container {{
     max-width: 600px;
     margin: 0 auto 25px auto;
@@ -470,7 +468,6 @@ body {{
     color: #facc15;
 }}
 
-/* SCREENSHOT MODE FULL */
 body.screenshot-mode {{
     padding: 10px !important;
 }}
@@ -660,7 +657,7 @@ for i, col in enumerate(sub_cols[8:16]):
             bg_col = job_colors.get(job, job_colors["default"])
             txt_col = job_text_colors.get(job, job_text_colors["default"])
             html += f'<div class="player" data-nick="{p_name.lower()}" style="--job-bg: {bg_col}; --job-fg: {txt_col};">{p_name}</div>'
-        html += ''], '</div>'
+        html += '</div>'
 
 html += f"""
         </div>
