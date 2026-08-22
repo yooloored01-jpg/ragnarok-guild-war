@@ -193,7 +193,7 @@ html = f"""
   from { transform: translateY(0px); }
   50% { transform: translateY(-8px); }
   to { transform: translateY(0px); }
-}
+}}
 
 body {{
     margin: 0;
