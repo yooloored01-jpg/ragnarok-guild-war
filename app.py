@@ -190,11 +190,10 @@ html = f"""
 
 /* --- TAMBAHKAN KODE INI DI SINI --- */
 @keyframes floatAnimation {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); } /* Geser ke atas 8px */
-  100% { transform: translateY(0px); }
+  from { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+  to { transform: translateY(0px); }
 }
-/* --------------------------------- */
 
 body {{
     margin: 0;
