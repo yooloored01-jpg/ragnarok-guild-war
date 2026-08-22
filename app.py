@@ -238,7 +238,7 @@ body {{
     margin-top: 5px;
     color: #93c5fd;
     font-family: 'Cinzel', serif;
-    font-size: 13px;
+    font-size: 18px;
     letter-spacing: 4px;
     font-weight: 700;
 }}
