@@ -188,11 +188,11 @@ html = f"""
 
 * {{ box-sizing: border-box; }}
 
-/* --- TAMBAHKAN KODE INI DI SINI --- */
-@keyframes floatAnimation {
-  from { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
-  to { transform: translateY(0px); }
+/* --- PERBAIKI MENJADI DUA KURUNG KURAWAL --- */
+@keyframes floatAnimation {{
+  0% {{ transform: translateY(0px); }}
+  50% {{ transform: translateY(-8px); }}
+  100% {{ transform: translateY(0px); }}
 }}
 
 body {{
