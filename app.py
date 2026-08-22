@@ -16,6 +16,14 @@ days = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"]
 months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
 tanggal_war = f"{days[now.weekday()]}, {now.day} {months[now.month - 1]} {now.year}"
 
+
+# Tombol Refresh Manual di Sidebar
+with st.sidebar:
+    st.subheader("⚙️ Panel Kontrol")
+    if st.button("🔄 Refresh Data Google Sheets"):
+        st.cache_data.clear()  # Menghapus cache Streamlit
+        st.rerun()             # Memuat ulang halaman
+
 # ==========================================
 # FUNGSI HELPER: KONVERSI GAMBAR LOKAL KE BASE64
 # ==========================================
@@ -48,7 +56,7 @@ url_main = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:c
 url_sub = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet=Sub"
 url_job = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet=Data"
 
-@st.cache_data
+@st.cache_data(ttl=0)
 def load_data():
     df_main = pd.read_csv(url_main)
     df_sub = pd.read_csv(url_sub)
