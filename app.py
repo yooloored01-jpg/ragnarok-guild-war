@@ -188,6 +188,14 @@ html = f"""
 
 * {{ box-sizing: border-box; }}
 
+/* --- TAMBAHKAN KODE INI DI SINI --- */
+@keyframes floatAnimation {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); } /* Geser ke atas 8px */
+  100% { transform: translateY(0px); }
+}
+/* --------------------------------- */
+
 body {{
     margin: 0;
     padding: 10px 20px;
@@ -225,6 +233,11 @@ body {{
     height: auto;
     object-fit: contain;
     filter: drop-shadow(0 0 8px rgba(250, 204, 21, 0.5));
+
+    /* --- TAMBAHKAN DUA BARIS INI --- */
+    animation: floatAnimation 2.5s ease-in-out infinite; 
+    display: inline-block; /* Penting agar transform bekerja dengan baik pada gambar */
+    /* ------------------------------ */
 }}
 
 .header {{
